@@ -14,12 +14,34 @@ headers = {
     "Upgrade-Insecure-Requests": "1",
 }
 
-
-
-
 response = requests.get(url,headers=headers)
 response.raise_for_status()
+
 #Create soup object
 soup = BeautifulSoup(response.text, 'html.parser')
 
-print(soup)
+rows = soup.find('table').find('tbody').find_all('tr')
+
+#List to store data
+data = []
+
+#Loop through each cell in the row
+for row in rows:
+    #Find all cells in the row
+    cells = row.find_all(['th', 'td'])
+    #List to store data for each row
+    row_data = []
+    #Loop through each cell in the row
+    for cell in cells:
+        #Append cell data to the raw data list
+        row_data.append(cell.get_text(strip=True))
+    #Append the row data to the data list
+    data.append(row_data)
+
+#Convert the data list to a DataFrame
+df = pd.DataFrame(data)
+
+#Save DataFrame to Excel file
+df.to_excel('scraped_data.xlsx', index=False)
+
+print("Data Saved Successfully!!")
